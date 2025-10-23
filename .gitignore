@@ -1,0 +1,12 @@
+﻿bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+appsettings.*.json
+*.db
+*.sqlite
+.env
+secrets.json
