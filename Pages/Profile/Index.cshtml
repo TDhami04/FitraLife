@@ -1,0 +1,89 @@
+@page
+@model FitraLife.Pages.Profile.IndexModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-primary">My Profile</h2>
+                        <p class="text-muted">View and update your personal fitness details</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <div class="alert alert-info text-center mb-4">@Model.StatusMessage</div>
+                    }
+
+                    <form method="post" class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Email" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.FitnessGoal" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.FitnessGoal" class="form-control" placeholder="e.g. Lose weight, Build muscle" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.Height" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Height" class="form-control" placeholder="in cm" />
+                            <span asp-validation-for="Input.Height" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Input.Weight" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Weight" class="form-control" placeholder="in kg" />
+                            <span asp-validation-for="Input.Weight" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 text-center mt-4">
+                            <div class="p-3 bg-light rounded-3 border">
+                                <h5 class="fw-bold mb-1">Current BMI</h5>
+                                <h2 class="text-success mb-0">
+                                    @(Model.Input?.BMI?.ToString("0.0") ?? "—")
+                                </h2>
+
+                                @if (Model.Input?.BMI != null)
+                                {
+                                    var bmi = Model.Input.BMI.Value;
+                                    string bmiCategory = bmi < 18.5 ? "Underweight" :
+                                                         bmi < 25 ? "Normal" :
+                                                         bmi < 30 ? "Overweight" :
+                                                         "Obese";
+
+                                    <p class="text-muted mt-1">Category: <strong>@bmiCategory</strong></p>
+
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar
+                                            @(bmi < 18.5 ? "bg-info" :
+                                              bmi < 25 ? "bg-success" :
+                                              bmi < 30 ? "bg-warning" : "bg-danger")"
+                                            role="progressbar"
+                                            style="width:@(Math.Min(bmi / 40 * 100, 100))%">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-4 rounded-3 shadow-sm">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

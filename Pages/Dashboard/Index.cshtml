@@ -1,0 +1,357 @@
+@page
+@model FitraLife.Pages.Dashboard.IndexModel
+@using FitraLife.Models
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+
+    <!-- Greeting -->
+    <h2 class="mb-4 text-center">Welcome, @Model.CurrentUser?.UserName!</h2>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="alert alert-success text-center">
+            @TempData["StatusMessage"]
+        </div>
+    }
+
+    <!-- ======================= WEEKLY GOALS ======================= -->
+    @if (Model.FitnessLogs.Any())
+    {
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body bg-dark text-white rounded-3 p-4">
+                <h4 class="text-center mb-4">Weekly Goals</h4>
+                <div class="row justify-content-center g-4">
+
+                    <!-- Steps -->
+                    <div class="col-md-4">
+                        <h6>Steps</h6>
+                        @{
+                            var stepPercent = Math.Min(100, (Model.WeeklySteps / Model.StepGoal) * 100);
+                        }
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 me-2">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-info" style="width:@($"{Math.Max(stepPercent, 2)}%")"></div>
+                                </div>
+                            </div>
+                            <span class="fw-semibold">@($"{stepPercent:N0}%")</span>
+                        </div>
+                        <small>@($"{Model.WeeklySteps:N0} / {Model.StepGoal:N0} steps")</small>
+                    </div>
+
+                    <!-- Calories -->
+                    <div class="col-md-4">
+                        <h6>Calories Burned</h6>
+                        @{
+                            var calPercent = Math.Min(100, (Model.WeeklyCaloriesBurned / Model.CaloriesBurnedGoal) * 100);
+                        }
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 me-2">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" style="width:@($"{Math.Max(calPercent, 2)}%")"></div>
+                                </div>
+                            </div>
+                            <span class="fw-semibold">@($"{calPercent:N0}%")</span>
+                        </div>
+                        <small>@($"{Model.WeeklyCaloriesBurned:N0} / {Model.CaloriesBurnedGoal:N0} kcal")</small>
+                    </div>
+
+                    <!-- Workout -->
+                    <div class="col-md-4">
+                        <h6>Workout Time</h6>
+                        @{
+                            var workoutPercent = Math.Min(100, (Model.WeeklyWorkoutMinutes / Model.WorkoutGoal) * 100);
+                        }
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 me-2">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-warning" style="width:@($"{Math.Max(workoutPercent, 2)}%")"></div>
+                                </div>
+                            </div>
+                            <span class="fw-semibold">@($"{workoutPercent:N0}%")</span>
+                        </div>
+                        <small>@($"{Model.WeeklyWorkoutMinutes:N0} / {Model.WorkoutGoal:N0} min")</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ======================= USER STATS + TODAY SUMMARY ======================= -->
+    @if (Model.CurrentUser != null)
+    {
+        <div class="row g-4 align-items-stretch">
+            <!-- User Stats -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h4 class="mb-3 text-center">Profile Overview</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6 text-center">
+                                <h6>Height</h6>
+                                <p class="fw-bold fs-5">@($"{Model.CurrentUser.Height:N2} cm")</p>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <h6>Weight</h6>
+                                <p class="fw-bold fs-5">@($"{Model.CurrentUser.Weight:N2} kg")</p>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <h6>BMI</h6>
+                                <p class="fw-bold fs-5">@($"{Model.CurrentUser.BMI:N1}")</p>
+                                @{
+                                    var bmi = Model.CurrentUser.BMI;
+                                    var progressClass = "bg-success";
+                                    var label = "Healthy";
+
+                                    if (bmi < 18.5) { progressClass = "bg-info"; label = "Underweight"; }
+                                    else if (bmi >= 25 && bmi < 30) { progressClass = "bg-warning"; label = "Overweight"; }
+                                    else if (bmi >= 30) { progressClass = "bg-danger"; label = "Obese"; }
+                                }
+                                <div class="progress mb-1" style="height: 10px;">
+                                    <div class="progress-bar @progressClass" style="width:@($"{Math.Min(bmi * 3, 100)}%")"></div>
+                                </div>
+                                <small class="text-muted">@label</small>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <h6>Goal</h6>
+                                <p class="fs-6">
+                                    @(!string.IsNullOrEmpty(Model.CurrentUser.FitnessGoal)
+                                        ? Model.CurrentUser.FitnessGoal
+                                        : "No goal set")
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="/Profile/Index" class="btn btn-primary px-4">Edit Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today Summary -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h4 class="mb-3 text-center">Today’s Summary</h4>
+                        @if (Model.LatestLog != null)
+                        {
+                            <div class="row g-3">
+                                <div class="col-6 col-md-3 text-center">
+                                    <h6>Steps</h6>
+                                    <p class="fs-5 fw-bold">@($"{Model.LatestLog.Steps:N0}")</p>
+                                </div>
+                                <div class="col-6 col-md-3 text-center">
+                                    <h6>Calories Burned</h6>
+                                    <p class="fs-5 fw-bold text-success">@($"{Model.LatestLog.CaloriesBurned:N0}")</p>
+                                </div>
+                                <div class="col-6 col-md-3 text-center">
+                                    <h6>Calories Eaten</h6>
+                                    <p class="fs-5 fw-bold text-danger">@($"{Model.LatestLog.CaloriesEaten:N0}")</p>
+                                </div>
+                                <div class="col-6 col-md-3 text-center">
+                                    <h6>Workout</h6>
+                                    <p class="fs-5 fw-bold text-warning">@($"{Model.LatestLog.WorkoutMinutes:N0} min")</p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info text-center mt-3">
+                                No logs for today yet. <a href="/FitnessLogs/Create" class="btn btn-sm btn-success ms-2">Log Now</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ======================= PROGRESS OVERVIEW ======================= -->
+    @if (Model.FitnessLogs.Any())
+    {
+        <div class="mt-5">
+            <h4 class="text-center mb-4">Progress Overview</h4>
+            <div class="row g-4">
+                <!-- Charts -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm p-3 h-100">
+                        <h5 class="text-center mb-3">Steps Over Time</h5>
+                        <div style="height:300px;">
+                            <canvas id="stepsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm p-3 h-100">
+                        <h5 class="text-center mb-3">Calories: Burned vs Eaten</h5>
+                        <div style="height:300px;">
+                            <canvas id="caloriesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ======================= PROGRESS INSIGHTS ======================= -->
+    @if (Model.FitnessLogs.Any())
+    {
+        <div class="mt-5">
+            <h4 class="text-center mb-4">Progress Insights</h4>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-3">
+                    <div class="card text-center shadow-sm border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="text-muted">Avg Steps</h6>
+                            <h4 class="fw-bold text-primary">@($"{Model.AverageSteps:N0}")</h4>
+                            <p class="text-muted">@Model.StepTrend</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center shadow-sm border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="text-muted">Avg Calories Burned</h6>
+                            <h4 class="fw-bold text-success">@($"{Model.AverageCaloriesBurned:N0}")</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center shadow-sm border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="text-muted">Avg Calories Eaten</h6>
+                            <h4 class="fw-bold text-danger">@($"{Model.AverageCaloriesEaten:N0}")</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center shadow-sm border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="text-muted">Total Workout Time</h6>
+                            <h4 class="fw-bold text-warning">@($"{Model.TotalWorkoutMinutes:N0} min")</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ======================= FITNESS LOGS ======================= -->
+    @if (Model.FitnessLogs.Any())
+    {
+        <div class="mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Your Fitness Logs</h4>
+                <a asp-page="/FitnessLogs/Create" class="btn btn-success">➕ Add New Log</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover shadow-sm">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Steps</th>
+                            <th>Calories Burned</th>
+                            <th>Calories Eaten</th>
+                            <th>Workout (min)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.FitnessLogs)
+                        {
+                            <tr>
+                                <td>@log.Date.ToShortDateString()</td>
+                                <td>@($"{log.Steps:N0}")</td>
+                                <td>@($"{log.CaloriesBurned:N0}")</td>
+                                <td>@($"{log.CaloriesEaten:N0}")</td>
+                                <td>@($"{log.WorkoutMinutes:N0}")</td>
+                                <td class="text-end">
+                                    <a asp-page="/FitnessLogs/Edit" asp-route-id="@log.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a asp-page="/FitnessLogs/Delete" asp-route-id="@log.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @{
+        var chartData = Model.FitnessLogs.Select(l => new {
+            date = l.Date.ToString("yyyy-MM-dd"),
+            steps = l.Steps,
+            caloriesBurned = l.CaloriesBurned,
+            caloriesEaten = l.CaloriesEaten
+        });
+    }
+
+    <script>
+        const logs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartData));
+        if (logs && logs.length > 0) {
+            logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+            const labels = logs.map(l => new Date(l.date).toLocaleDateString());
+            const steps = logs.map(l => l.steps);
+            const caloriesBurned = logs.map(l => l.caloriesBurned);
+            const caloriesEaten = logs.map(l => l.caloriesEaten);
+
+            Chart.defaults.color = "#ddd";
+            Chart.defaults.borderColor = "rgba(255,255,255,0.1)";
+            Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+
+            new Chart(document.getElementById('stepsChart'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Steps',
+                        data: steps,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(37,140,251,0.25)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#60a5fa'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('caloriesChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Calories Burned', data: caloriesBurned, backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10b981', borderWidth: 1, borderRadius: 4 },
+                        { label: 'Calories Eaten', data: caloriesEaten, backgroundColor: 'rgba(239,68,68,0.7)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#ddd' } } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+    </script>
+}

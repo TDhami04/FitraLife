@@ -1,0 +1,27 @@
+@page "{id:int}"
+@model FitraLife.Pages.FitnessLogs.DeleteModel
+@{
+    ViewData["Title"] = "Delete Fitness Log";
+}
+
+<h2 class="text-danger">Delete Fitness Log</h2>
+
+@if (Model.Log != null)
+{
+    <div class="card p-4 shadow-sm">
+        <p>Are you sure you want to delete this log?</p>
+
+        <ul>
+            <li><strong>Date:</strong> @Model.Log.Date.ToShortDateString()</li>
+            <li><strong>Steps:</strong> @Model.Log.Steps</li>
+            <li><strong>Calories Burned:</strong> @Model.Log.CaloriesBurned</li>
+            <li><strong>Calories Eaten:</strong> @Model.Log.CaloriesEaten</li>
+            <li><strong>Workout:</strong> @Model.Log.WorkoutMinutes min</li>
+        </ul>
+
+        <form method="post">
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a asp-page="/Dashboard/Index" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+}

@@ -1,0 +1,64 @@
+@page
+@model FitraLife.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Create an Account";
+}
+
+<div class="container py-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4 rounded-4" style="max-width: 500px; width: 100%;">
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                <strong>There were some problems with your submission:</strong>
+                <ul class="mb-0">
+                    @foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password" class="form-control" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Height" class="form-label"></label>
+                    <input asp-for="Input.Height" class="form-control" />
+                    <span asp-validation-for="Input.Height" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Weight" class="form-label"></label>
+                    <input asp-for="Input.Weight" class="form-control" />
+                    <span asp-validation-for="Input.Weight" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+
+            <div class="text-center mt-3">
+                <p>Already have an account? <a asp-page="/Account/Login">Login</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

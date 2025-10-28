@@ -1,0 +1,37 @@
+@page
+@model FitraLife.Pages.FitnessLogs.DetailsModel
+@{
+    ViewData["Title"] = "Fitness Log Details";
+}
+
+<h2>Fitness Log Details</h2>
+
+@if (Model.Log != null)
+{
+    <div class="card p-4 shadow-sm">
+        <dl class="row">
+            <dt class="col-sm-3">Date</dt>
+            <dd class="col-sm-9">@Model.Log.Date.ToShortDateString()</dd>
+
+            <dt class="col-sm-3">Steps</dt>
+            <dd class="col-sm-9">@Model.Log.Steps</dd>
+
+            <dt class="col-sm-3">Calories Burned</dt>
+            <dd class="col-sm-9">@Model.Log.CaloriesBurned</dd>
+
+            <dt class="col-sm-3">Calories Eaten</dt>
+            <dd class="col-sm-9">@Model.Log.CaloriesEaten</dd>
+
+            <dt class="col-sm-3">Workout Minutes</dt>
+            <dd class="col-sm-9">@Model.Log.WorkoutMinutes</dd>
+        </dl>
+        <div class="mt-3">
+            <a asp-page="/FitnessLogs/Edit" asp-route-id="@Model.Log.Id" class="btn btn-primary">Edit</a>
+            <a href="/Dashboard/Index" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">Log not found.</div>
+}
