@@ -10,3 +10,7 @@ appsettings.*.json
 *.sqlite
 .env
 secrets.json
+
+# SQLite temp files
+*.db-shm
+*.db-wal
