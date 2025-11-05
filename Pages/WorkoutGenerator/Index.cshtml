@@ -1,0 +1,113 @@
+@page
+@model FitraLife.Pages.WorkoutGenerator.IndexModel
+@{
+    ViewData["Title"] = "AI Workout Generator";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary">🤖 AI Workout Plan Generator</h2>
+        <p class="text-muted">Let Gemini AI craft a structured weekly plan tailored to your goals and experience.</p>
+    </div>
+
+    <form method="post" asp-page-handler="Generate" id="aiForm" class="card shadow-lg p-4 border-0 rounded-4 mx-auto" style="max-width: 700px;">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Goal" class="form-label fw-semibold">Goal</label>
+                <select asp-for="Goal" class="form-select form-select-lg shadow-sm">
+                    <option value="">Select a Goal</option>
+                    <option>Build Muscle</option>
+                    <option>Lose Weight</option>
+                    <option>Get Toned</option>
+                    <option>General Fitness</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ExperienceLevel" class="form-label fw-semibold">Experience Level</label>
+                <select asp-for="ExperienceLevel" class="form-select form-select-lg shadow-sm">
+                    <option>Beginner</option>
+                    <option>Intermediate</option>
+                    <option>Advanced</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="AvailableDays" class="form-label fw-semibold">Days Per Week</label>
+                <select asp-for="AvailableDays" class="form-select form-select-lg shadow-sm">
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5 shadow" id="generateBtn">
+                ⚡ Generate My AI Plan
+            </button>
+        </div>
+
+        <div class="text-center mt-4 d-none" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2">Generating your plan... Please wait ⏳</p>
+        </div>
+    </form>
+
+    @if (Model.AiWorkoutPlan?.Any() == true)
+    {
+        <div class="card shadow-lg border-0 rounded-4 mt-4">
+            <div class="card-body">
+                <h4 class="fw-bold text-center text-primary mb-4">
+                    🤖 @Model.PlanTitle
+                </h4>
+
+                <div class="accordion" id="aiWorkoutAccordion">
+                    @for (int i = 0; i < Model.AiWorkoutPlan.Count; i++)
+                    {
+                        var day = Model.AiWorkoutPlan[i];
+                        var collapseId = $"collapse{i}";
+                        var headingId = $"heading{i}";
+                        <div class="accordion-item border-0 mb-2 shadow-sm rounded-3">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button collapsed fw-semibold" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#@collapseId" 
+                                        aria-expanded="false" aria-controls="@collapseId">
+                                    🗓️ @day.Day
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse" 
+                                aria-labelledby="@headingId" data-bs-parent="#aiWorkoutAccordion">
+                                <div class="accordion-body bg-light">
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var ex in day.Exercises)
+                                        {
+                                            <li class="list-group-item">@ex</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const form = document.getElementById("aiForm");
+        const spinner = document.getElementById("loadingSpinner");
+        const button = document.getElementById("generateBtn");
+
+        form.addEventListener("submit", () => {
+            spinner.classList.remove("d-none");
+            button.disabled = true;
+            button.innerHTML = "⏳ Generating...";
+        });
+    </script>
+}

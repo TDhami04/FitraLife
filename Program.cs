@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using FitraLife.Data;
 using FitraLife.Models;
 using Microsoft.AspNetCore.Identity;
+using FitraLife.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+
+builder.Services.AddSingleton(typeof(IGeminiService), typeof(GeminiService));
 
 
 var app = builder.Build();

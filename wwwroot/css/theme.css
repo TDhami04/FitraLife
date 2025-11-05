@@ -196,3 +196,26 @@ body.dark-mode .bg-light .progress {
     align-items: center;
     justify-content: center;
 }
+
+body.dark-mode .accordion-button {
+  background-color: #1f2937;
+  color: #93c5fd;
+}
+
+body.dark-mode .accordion-button:hover {
+  background-color: #374151;
+  color: #60a5fa;
+}
+
+body.dark-mode .accordion-body {
+  background-color: #111827;
+}
+
+body.dark-mode .list-group-item {
+  color: #e5e7eb;
+}
+
+body.dark-mode .spinner-border.fitra {
+  color: #3b82f6;
+  opacity: 0.9;
+}

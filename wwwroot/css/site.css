@@ -187,3 +187,70 @@ canvas {
   width: 100% !important;
   height: 300px !important;
 }
+
+.accordion-button {
+  background-color: #f1f5ff;
+  color: #1e3a8a;
+  font-weight: 600;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease;
+}
+
+.accordion-button:hover {
+  background-color: #e0edff;
+  color: #1d4ed8;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.accordion-button::after {
+  transition: transform 0.3s ease;
+}
+
+.accordion-button.collapsed::after {
+  transform: rotate(-90deg);
+}
+
+.accordion-body {
+  background-color: #f9fafb;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.list-group-item {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.list-group-item::before {
+  content: "🏋️ ";
+  font-size: 0.9rem;
+}
+
+.spinner-border.fitra {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+  color: #258cfb;
+  animation: spinPulse 1s ease-in-out infinite;
+}
+
+@keyframes spinPulse {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.8;
+  }
+}
