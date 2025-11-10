@@ -1,10 +1,11 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FitraLife.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FitraLife.Data;
-using SQLitePCL;
 
 namespace FitraLife.Pages.Dashboard
 {
@@ -13,26 +14,26 @@ namespace FitraLife.Pages.Dashboard
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+
         public ApplicationUser? CurrentUser { get; set; }
         public FitnessLog? LatestLog { get; set; }
         public List<FitnessLog> FitnessLogs { get; set; } = new();
 
-        // Insights properties
         public double AverageSteps { get; set; }
         public double AverageCaloriesBurned { get; set; }
         public double AverageCaloriesEaten { get; set; }
         public double TotalWorkoutMinutes { get; set; }
         public string StepTrend { get; set; } = "No data";
 
-        // Weekly Goal Properties
         public double WeeklySteps { get; set; }
         public double WeeklyCaloriesBurned { get; set; }
         public double WeeklyWorkoutMinutes { get; set; }
 
-        // Set default goals (you can later make these customizable per user)
-        public int StepGoal { get; set; } = 70000; // 10k steps * 7 days
-        public int CaloriesBurnedGoal { get; set; } = 3500; // e.g. 500 per day
-        public int WorkoutGoal { get; set; } = 300; // e.g. 300 minutes per week (about 40 min/day)
+    public int StepGoal { get; set; } = 70000;
+    public int WorkoutGoal { get; set; } = 300;
+
+    public double WeeklyEatGoal { get; set; }
+    public double WeeklyCaloriesEaten { get; set; }
 
         public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
@@ -43,7 +44,6 @@ namespace FitraLife.Pages.Dashboard
         public async Task OnGetAsync()
         {
             CurrentUser = await _userManager.GetUserAsync(User);
-
             if (CurrentUser == null) return;
 
             LatestLog = _context.FitnessLogs
@@ -54,7 +54,7 @@ namespace FitraLife.Pages.Dashboard
             FitnessLogs = _context.FitnessLogs
                 .Where(f => f.UserId == CurrentUser.Id)
                 .OrderByDescending(f => f.Date)
-                .Take(10)
+                .Take(30)
                 .ToList();
 
             if (FitnessLogs.Any())
@@ -80,7 +80,48 @@ namespace FitraLife.Pages.Dashboard
 
             WeeklySteps = weeklyLogs.Sum(f => f.Steps);
             WeeklyCaloriesBurned = weeklyLogs.Sum(f => f.CaloriesBurned);
+            WeeklyCaloriesEaten = weeklyLogs.Sum(f => f.CaloriesEaten);
             WeeklyWorkoutMinutes = weeklyLogs.Sum(f => f.WorkoutMinutes);
+
+            WeeklyEatGoal = CalculateWeeklyCalorieGoal(CurrentUser, "eat");
+        }
+
+        private double CalculateWeeklyCalorieGoal(ApplicationUser user, string type)
+        {
+            if (user.Weight <= 0 || user.Height <= 0 || user.Age <= 0)
+                return 0;
+
+            // BMR (Mifflin-St Jeor Equation)
+            double bmr = user.Gender == "Male"
+                ? 10 * user.Weight + 6.25 * user.Height - 5 * user.Age + 5
+                : 10 * user.Weight + 6.25 * user.Height - 5 * user.Age - 161;
+
+            // Activity factor
+            double activity = user.ActivityLevel switch
+            {
+                "Sedentary" => 1.2,
+                "Light" => 1.375,
+                "Moderate" => 1.55,
+                "Active" => 1.725,
+                _ => 1.55
+            };
+
+            double maintenance = bmr * activity;
+            double dailyGoal = maintenance;
+
+            switch (user.GoalType)
+            {
+                case "Lose":
+                    dailyGoal -= 500;
+                    break;
+                case "Gain":
+                    dailyGoal += 500;
+                    break;
+            }
+
+            if (type == "eat") return dailyGoal * 7;
+            // 'burn' calculation removed from the page model — the view computes burn goal inline when needed.
+            return 0;
         }
     }
 }

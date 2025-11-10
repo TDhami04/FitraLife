@@ -26,7 +26,7 @@
                 <div class="row justify-content-center g-4">
 
                     <!-- Steps -->
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <h6>Steps</h6>
                         @{
                             var stepPercent = Math.Min(100, (Model.WeeklySteps / Model.StepGoal) * 100);
@@ -42,25 +42,8 @@
                         <small>@($"{Model.WeeklySteps:N0} / {Model.StepGoal:N0} steps")</small>
                     </div>
 
-                    <!-- Calories -->
-                    <div class="col-md-4">
-                        <h6>Calories Burned</h6>
-                        @{
-                            var calPercent = Math.Min(100, (Model.WeeklyCaloriesBurned / Model.CaloriesBurnedGoal) * 100);
-                        }
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 me-2">
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-success" style="width:@($"{Math.Max(calPercent, 2)}%")"></div>
-                                </div>
-                            </div>
-                            <span class="fw-semibold">@($"{calPercent:N0}%")</span>
-                        </div>
-                        <small>@($"{Model.WeeklyCaloriesBurned:N0} / {Model.CaloriesBurnedGoal:N0} kcal")</small>
-                    </div>
-
                     <!-- Workout -->
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <h6>Workout Time</h6>
                         @{
                             var workoutPercent = Math.Min(100, (Model.WeeklyWorkoutMinutes / Model.WorkoutGoal) * 100);
@@ -74,6 +57,74 @@
                             <span class="fw-semibold">@($"{workoutPercent:N0}%")</span>
                         </div>
                         <small>@($"{Model.WeeklyWorkoutMinutes:N0} / {Model.WorkoutGoal:N0} min")</small>
+                    </div>
+
+                    <!-- Weekly Calories Eaten -->
+                    <div class="col-md-6">
+                        <h6>Calories Eaten (Weekly)</h6>
+                        @{
+                            var eatPercent = Model.WeeklyEatGoal > 0
+                                ? Math.Min(100, (Model.WeeklyCaloriesEaten / Model.WeeklyEatGoal) * 100)
+                                : 0;
+                        }
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 me-2">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-danger" style="width:@($"{Math.Max(eatPercent, 2)}%")"></div>
+                                </div>
+                            </div>
+                            <span class="fw-semibold">@($"{eatPercent:N0}%")</span>
+                        </div>
+                        <small>@($"{Model.WeeklyCaloriesEaten:N0} / {Model.WeeklyEatGoal:N0} kcal")</small>
+                    </div>
+
+                    <!-- Weekly Calories Burned Goal -->
+                    <div class="col-md-6">
+                        <h6>Calories Burn Goal (Weekly)</h6>
+                        @{
+                                // Calculate weekly burn goal inline so the model doesn't need to store it.
+                                double weeklyBurnGoal = 0;
+                                var u = Model.CurrentUser;
+                                if (u != null && u.Weight > 0 && u.Height > 0 && u.Age > 0)
+                                {
+                                    double bmr = u.Gender == "Male"
+                                        ? 10 * u.Weight + 6.25 * u.Height - 5 * u.Age + 5
+                                        : 10 * u.Weight + 6.25 * u.Height - 5 * u.Age - 161;
+                                    double activity = u.ActivityLevel switch
+                                    {
+                                        "Sedentary" => 1.2,
+                                        "Light" => 1.375,
+                                        "Moderate" => 1.55,
+                                        "Active" => 1.725,
+                                        _ => 1.55
+                                    };
+                                    double maintenance = bmr * activity;
+                                    double dailyGoal = maintenance;
+                                    switch (u.GoalType)
+                                    {
+                                        case "Lose":
+                                            dailyGoal -= 500;
+                                            break;
+                                        case "Gain":
+                                            dailyGoal += 500;
+                                            break;
+                                    }
+                                    weeklyBurnGoal = (dailyGoal * 7) * 0.6; // assume 60% of burn comes from workouts
+                                }
+
+                                var burnPercent = weeklyBurnGoal > 0
+                                    ? Math.Min(100, (Model.WeeklyCaloriesBurned / weeklyBurnGoal) * 100)
+                                    : 0;
+                            }
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 me-2">
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" style="width:@($"{Math.Max(burnPercent, 2)}%")"></div>
+                                    </div>
+                                </div>
+                                <span class="fw-semibold">@($"{burnPercent:N0}%")</span>
+                            </div>
+                            <small>@($"{Model.WeeklyCaloriesBurned:N0} / {weeklyBurnGoal:N0} kcal")</small>
                     </div>
                 </div>
             </div>

@@ -25,33 +25,64 @@
                             <input asp-for="Input.Email" class="form-control" readonly />
                         </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Input.FitnessGoal" class="form-label fw-semibold"></label>
-                            <input asp-for="Input.FitnessGoal" class="form-control" placeholder="e.g. Lose weight, Build muscle" />
+                        <div class="mb-3">
+                            <label asp-for="Input.Height" class="form-label">Height (cm)</label>
+                            <input asp-for="Input.Height" class="form-control" type="number" step="0.1" required />
                         </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Input.Height" class="form-label fw-semibold"></label>
-                            <input asp-for="Input.Height" class="form-control" placeholder="in cm" />
-                            <span asp-validation-for="Input.Height" class="text-danger small"></span>
+                        <div class="mb-3">
+                            <label asp-for="Input.Weight" class="form-label">Weight (kg)</label>
+                            <input asp-for="Input.Weight" class="form-control" type="number" step="0.1" required />
                         </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="Input.Weight" class="form-label fw-semibold"></label>
-                            <input asp-for="Input.Weight" class="form-control" placeholder="in kg" />
-                            <span asp-validation-for="Input.Weight" class="text-danger small"></span>
+                        <div class="mb-3">
+                            <label asp-for="Input.Age" class="form-label">Age</label>
+                            <input asp-for="Input.Age" class="form-control" type="number" min="10" max="100" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Gender" class="form-label">Gender</label>
+                            <select asp-for="Input.Gender" class="form-select">
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.ActivityLevel" class="form-label">Activity Level</label>
+                            <select asp-for="Input.ActivityLevel" class="form-select">
+                                <option>Sedentary</option>
+                                <option>Light</option>
+                                <option>Moderate</option>
+                                <option>Active</option>
+                                <option>Very Active</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.GoalType" class="form-label">Goal Type</label>
+                            <select asp-for="Input.GoalType" class="form-select">
+                                <option>Lose</option>
+                                <option>Maintain</option>
+                                <option>Gain</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.FitnessGoal" class="form-label">Goal Description</label>
+                            <input asp-for="Input.FitnessGoal" class="form-control" />
                         </div>
 
                         <div class="col-12 text-center mt-4">
                             <div class="p-3 bg-light rounded-3 border">
                                 <h5 class="fw-bold mb-1">Current BMI</h5>
                                 <h2 class="text-success mb-0">
-                                    @(Model.Input?.BMI?.ToString("0.0") ?? "—")
+                                    @(Model.Input?.BMI.ToString("0.0") ?? "—")
                                 </h2>
 
                                 @if (Model.Input?.BMI != null)
                                 {
-                                    var bmi = Model.Input.BMI.Value;
+                                    var bmi = Model.Input?.BMI ?? 0.0;
                                     string bmiCategory = bmi < 18.5 ? "Underweight" :
                                                          bmi < 25 ? "Normal" :
                                                          bmi < 30 ? "Overweight" :

@@ -1,13 +1,26 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Threading.Tasks;
+using FitraLife.Models;
 
 namespace FitraLife.Pages.Account
 {
     public class LogoutModel : PageModel
     {
-        public IActionResult OnPost()
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
+        public LogoutModel(SignInManager<ApplicationUser> signInManager)
         {
-            HttpContext.Session.Remove("UserId");
+            _signInManager = signInManager;
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            await _signInManager.SignOutAsync();
+
+            HttpContext.Session.Clear();
+
             return RedirectToPage("/Index");
         }
     }

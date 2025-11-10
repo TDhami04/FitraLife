@@ -47,6 +47,12 @@ namespace FitraLife.Pages.Account
 
             if (!ModelState.IsValid) return Page();
 
+            if (Input == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
@@ -54,11 +60,11 @@ namespace FitraLife.Pages.Account
                 return Page();
             }
 
-            // Correct signature: (string userName, string password, bool isPersistent, bool lockoutOnFailure)
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, Input.Password, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
+                await _signInManager.SignInAsync(user, Input.RememberMe);
                 return LocalRedirect(ReturnUrl);
             }
 

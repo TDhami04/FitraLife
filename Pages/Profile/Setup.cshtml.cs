@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace FitraLife.Pages.Profile
 {
-    public class IndexModel : PageModel
+    public class SetupModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public IndexModel(UserManager<ApplicationUser> userManager)
+        public SetupModel(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
@@ -19,19 +19,8 @@ namespace FitraLife.Pages.Profile
         [BindProperty]
         public ApplicationUser Input { get; set; } = new();
 
-        [TempData]
-        public string? StatusMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToPage("/Account/Login");
-
-            Input = user;
-
-            return Page();
-        }
+        public void OnGet() { }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -51,13 +40,9 @@ namespace FitraLife.Pages.Profile
             user.FitnessGoal = Input.FitnessGoal;
             user.BMI = Math.Round(user.Weight / Math.Pow(user.Height / 100, 2), 1);
 
-            var result = await _userManager.UpdateAsync(user);
+            await _userManager.UpdateAsync(user);
 
-            StatusMessage = result.Succeeded
-                ? "Profile updated successfully!"
-                : "Error updating profile.";
-
-            return RedirectToPage();
+            return RedirectToPage("/Dashboard/Index");
         }
     }
 }
