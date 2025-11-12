@@ -158,6 +158,12 @@ table.table td {
   vertical-align: middle;
 }
 
+.table-primary th {
+  background-color: #e8f2ff !important;
+  color: #0f172a !important;
+  font-weight: 600;
+}
+
 .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: #f9fbfd;
 }
@@ -254,3 +260,23 @@ canvas {
     opacity: 0.8;
   }
 }
+
+.goal-box {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.04);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.goal-box .progress {
+  height: 16px;
+  border-radius: 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .goal-box { min-height: 100px; padding: 0.75rem; }
+}
+

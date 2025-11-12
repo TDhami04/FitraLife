@@ -10,6 +10,11 @@ namespace FitraLife.Pages.Profile
     public class IndexModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        
+        public bool HasProfileComplete { get; set; }
+        public bool HasActiveGoal { get; set; }
+        public bool HasBMIRecorded { get; set; }
+        public int ProfileCompleteness { get; set; }
 
         public IndexModel(UserManager<ApplicationUser> userManager)
         {
@@ -29,6 +34,19 @@ namespace FitraLife.Pages.Profile
                 return RedirectToPage("/Account/Login");
 
             Input = user;
+
+            HasBMIRecorded = Input.BMI > 0;
+            HasActiveGoal = (Input.StepGoal > 0) || (Input.WorkoutMinutesGoal > 0) || !string.IsNullOrEmpty(Input.FitnessGoal);
+
+            int points = 0;
+            if (Input.Age > 0) points++;
+            if (!string.IsNullOrEmpty(Input.Gender)) points++;
+            if (Input.Height > 0) points++;
+            if (Input.Weight > 0) points++;
+            if (!string.IsNullOrEmpty(Input.ActivityLevel)) points++;
+            if (!string.IsNullOrEmpty(Input.GoalType)) points++;
+            ProfileCompleteness = (int)Math.Round((points / 6.0) * 100);
+            HasProfileComplete = ProfileCompleteness >= 80; 
 
             return Page();
         }
@@ -50,6 +68,8 @@ namespace FitraLife.Pages.Profile
             user.GoalType = Input.GoalType;
             user.FitnessGoal = Input.FitnessGoal;
             user.BMI = Math.Round(user.Weight / Math.Pow(user.Height / 100, 2), 1);
+            user.StepGoal = Input.StepGoal;
+            user.WorkoutMinutesGoal = Input.WorkoutMinutesGoal;
 
             var result = await _userManager.UpdateAsync(user);
 

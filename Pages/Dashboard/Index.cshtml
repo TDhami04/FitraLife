@@ -8,11 +8,11 @@
 <div class="container py-4">
 
     <!-- Greeting -->
-    <h2 class="mb-4 text-center">Welcome, @Model.CurrentUser?.UserName!</h2>
+    <h2 class="mb-4 text-center">Welcome back, @Model.CurrentUser?.UserName!</h2>
 
     @if (TempData["StatusMessage"] != null)
     {
-        <div class="alert alert-success text-center">
+        <div class="alert alert-success text-center rounded-3 shadow-sm">
             @TempData["StatusMessage"]
         </div>
     }
@@ -20,69 +20,76 @@
     <!-- ======================= WEEKLY GOALS ======================= -->
     @if (Model.FitnessLogs.Any())
     {
-        <div class="card shadow-sm border-0 mb-5">
-            <div class="card-body weekly-goals-section rounded-3 p-4">
-                <h4 class="text-center mb-4">Weekly Goals</h4>
+        <div class="card shadow-sm border-0 mb-5 rounded-3">
+            <div class="card-body p-4">
+                <h4 class="text-center mb-4 fw-semibold">Weekly Fitness Goals</h4>
+
                 <div class="row justify-content-center g-4">
 
                     <!-- Steps -->
-                    <div class="col-md-6">
-                        <h6>Steps</h6>
-                        @{
-                            var stepPercent = Math.Min(100, (Model.WeeklySteps / Model.StepGoal) * 100);
-                        }
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 me-2">
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-info" style="width:@($"{Math.Max(stepPercent, 2)}%")"></div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="goal-box">
+                            <h6>Steps</h6>
+                            @{
+                                var stepPercent = Math.Min(100, (Model.WeeklySteps / Model.StepGoal) * 100);
+                            }
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="flex-grow-1 me-2">
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-info" style="width:@($"{Math.Max(stepPercent, 2)}%")"></div>
+                                    </div>
                                 </div>
+                                <span class="fw-semibold">@($"{stepPercent:N0}%")</span>
                             </div>
-                            <span class="fw-semibold">@($"{stepPercent:N0}%")</span>
+                            <small class="text-muted">@($"{Model.WeeklySteps:N0} / {Model.StepGoal:N0} steps")</small>
                         </div>
-                        <small>@($"{Model.WeeklySteps:N0} / {Model.StepGoal:N0} steps")</small>
                     </div>
 
-                    <!-- Workout -->
-                    <div class="col-md-6">
-                        <h6>Workout Time</h6>
-                        @{
-                            var workoutPercent = Math.Min(100, (Model.WeeklyWorkoutMinutes / Model.WorkoutGoal) * 100);
-                        }
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 me-2">
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-warning" style="width:@($"{Math.Max(workoutPercent, 2)}%")"></div>
+                    <!-- Workout Time -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="goal-box">
+                            <h6>Workout Time</h6>
+                            @{
+                                var workoutPercent = Math.Min(100, (Model.WeeklyWorkoutMinutes / Model.WorkoutMinutesGoal) * 100);
+                            }
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="flex-grow-1 me-2">
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-warning" style="width:@($"{Math.Max(workoutPercent, 2)}%")"></div>
+                                    </div>
                                 </div>
+                                <span class="fw-semibold">@($"{workoutPercent:N0}%")</span>
                             </div>
-                            <span class="fw-semibold">@($"{workoutPercent:N0}%")</span>
+                            <small class="text-muted">@($"{Model.WeeklyWorkoutMinutes:N0} / {Model.WorkoutMinutesGoal:N0} min")</small>
                         </div>
-                        <small>@($"{Model.WeeklyWorkoutMinutes:N0} / {Model.WorkoutGoal:N0} min")</small>
                     </div>
 
                     <!-- Weekly Calories Eaten -->
-                    <div class="col-md-6">
-                        <h6>Calories Eaten (Weekly)</h6>
-                        @{
-                            var eatPercent = Model.WeeklyEatGoal > 0
-                                ? Math.Min(100, (Model.WeeklyCaloriesEaten / Model.WeeklyEatGoal) * 100)
-                                : 0;
-                        }
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 me-2">
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-danger" style="width:@($"{Math.Max(eatPercent, 2)}%")"></div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="goal-box">
+                            <h6>Calories Eaten (Weekly)</h6>
+                            @{
+                                var eatPercent = Model.WeeklyEatGoal > 0
+                                    ? Math.Min(100, (Model.WeeklyCaloriesEaten / Model.WeeklyEatGoal) * 100)
+                                    : 0;
+                            }
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="flex-grow-1 me-2">
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-danger" style="width:@($"{Math.Max(eatPercent, 2)}%")"></div>
+                                    </div>
                                 </div>
+                                <span class="fw-semibold">@($"{eatPercent:N0}%")</span>
                             </div>
-                            <span class="fw-semibold">@($"{eatPercent:N0}%")</span>
+                            <small class="text-muted">@($"{Model.WeeklyCaloriesEaten:N0} / {Model.WeeklyEatGoal:N0} kcal")</small>
                         </div>
-                        <small>@($"{Model.WeeklyCaloriesEaten:N0} / {Model.WeeklyEatGoal:N0} kcal")</small>
                     </div>
 
-                    <!-- Weekly Calories Burned Goal -->
-                    <div class="col-md-6">
-                        <h6>Calories Burn Goal (Weekly)</h6>
-                        @{
-                                // Calculate weekly burn goal inline so the model doesn't need to store it.
+                    <!-- Weekly Calories Burned -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="goal-box">
+                            <h6>Calories Burned (Weekly)</h6>
+                            @{
                                 double weeklyBurnGoal = 0;
                                 var u = Model.CurrentUser;
                                 if (u != null && u.Weight > 0 && u.Height > 0 && u.Age > 0)
@@ -102,29 +109,26 @@
                                     double dailyGoal = maintenance;
                                     switch (u.GoalType)
                                     {
-                                        case "Lose":
-                                            dailyGoal -= 500;
-                                            break;
-                                        case "Gain":
-                                            dailyGoal += 500;
-                                            break;
+                                        case "Lose": dailyGoal -= 500; break;
+                                        case "Gain": dailyGoal += 500; break;
                                     }
-                                    weeklyBurnGoal = (dailyGoal * 7) * 0.6; // assume 60% of burn comes from workouts
+                                    weeklyBurnGoal = (dailyGoal * 7) * 0.6; // 60% attributed to workouts
                                 }
 
                                 var burnPercent = weeklyBurnGoal > 0
                                     ? Math.Min(100, (Model.WeeklyCaloriesBurned / weeklyBurnGoal) * 100)
                                     : 0;
                             }
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center mb-1">
                                 <div class="flex-grow-1 me-2">
-                                    <div class="progress" style="height: 20px;">
+                                    <div class="progress" style="height: 18px;">
                                         <div class="progress-bar bg-success" style="width:@($"{Math.Max(burnPercent, 2)}%")"></div>
                                     </div>
                                 </div>
                                 <span class="fw-semibold">@($"{burnPercent:N0}%")</span>
                             </div>
-                            <small>@($"{Model.WeeklyCaloriesBurned:N0} / {weeklyBurnGoal:N0} kcal")</small>
+                            <small class="text-muted">@($"{Model.WeeklyCaloriesBurned:N0} / {weeklyBurnGoal:N0} kcal")</small>
+                        </div>
                     </div>
                 </div>
             </div>

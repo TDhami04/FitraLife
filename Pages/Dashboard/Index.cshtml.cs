@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FitraLife.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -27,13 +28,14 @@ namespace FitraLife.Pages.Dashboard
 
         public double WeeklySteps { get; set; }
         public double WeeklyCaloriesBurned { get; set; }
+        public double WeeklyCaloriesEaten { get; set; }
         public double WeeklyWorkoutMinutes { get; set; }
 
-    public int StepGoal { get; set; } = 70000;
-    public int WorkoutGoal { get; set; } = 300;
+        public int StepGoal { get; set; }
+        public int WorkoutMinutesGoal { get; set; }
+        public double WeeklyEatGoal { get; set; }
 
-    public double WeeklyEatGoal { get; set; }
-    public double WeeklyCaloriesEaten { get; set; }
+        public string WeeklyFeedback { get; set; } = string.Empty;
 
         public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
@@ -46,17 +48,40 @@ namespace FitraLife.Pages.Dashboard
             CurrentUser = await _userManager.GetUserAsync(User);
             if (CurrentUser == null) return;
 
-            LatestLog = _context.FitnessLogs
-                .Where(f => f.UserId == CurrentUser.Id)
-                .OrderByDescending(f => f.Date)
-                .FirstOrDefault();
+            StepGoal = CurrentUser.StepGoal;
+            WorkoutMinutesGoal = CurrentUser.WorkoutMinutesGoal;
 
+            // Get all logs for the user
             FitnessLogs = _context.FitnessLogs
                 .Where(f => f.UserId == CurrentUser.Id)
                 .OrderByDescending(f => f.Date)
                 .Take(30)
                 .ToList();
 
+            // Get logs specifically for today (using local date)
+            var today = DateTime.Now.Date;
+            var todaysLogs = _context.FitnessLogs
+                .Where(f => f.UserId == CurrentUser.Id && f.Date.Date == today)
+                .ToList();
+
+            if (todaysLogs.Any())
+            {
+                // Combine all today's entries into one daily summary
+                LatestLog = new FitnessLog
+                {
+                    Date = today,
+                    Steps = todaysLogs.Sum(l => l.Steps),
+                    CaloriesBurned = todaysLogs.Sum(l => l.CaloriesBurned),
+                    CaloriesEaten = todaysLogs.Sum(l => l.CaloriesEaten),
+                    WorkoutMinutes = todaysLogs.Sum(l => l.WorkoutMinutes)
+                };
+            }
+            else
+            {
+                LatestLog = null; // no logs today, display "No logs for today"
+            }
+
+            // Averages + Trends
             if (FitnessLogs.Any())
             {
                 AverageSteps = FitnessLogs.Average(f => f.Steps);
@@ -69,13 +94,14 @@ namespace FitraLife.Pages.Dashboard
                     var last = FitnessLogs.First().Steps;
                     var previous = FitnessLogs.Skip(1).First().Steps;
                     var change = last - previous;
-                    StepTrend = change > 0 ? $"⬆ {change} steps vs. previous" :
-                                change < 0 ? $"⬇ {Math.Abs(change)} steps vs. previous" :
+                    StepTrend = change > 0 ? $"⬆ {change} steps vs previous" :
+                                change < 0 ? $"⬇ {Math.Abs(change)} steps vs previous" :
                                 "No change from previous day";
                 }
             }
 
-            var weekStart = DateTime.Now.AddDays(-7);
+            // Weekly calculations
+            var weekStart = DateTime.Today.AddDays(-7);
             var weeklyLogs = FitnessLogs.Where(f => f.Date >= weekStart).ToList();
 
             WeeklySteps = weeklyLogs.Sum(f => f.Steps);
@@ -83,12 +109,14 @@ namespace FitraLife.Pages.Dashboard
             WeeklyCaloriesEaten = weeklyLogs.Sum(f => f.CaloriesEaten);
             WeeklyWorkoutMinutes = weeklyLogs.Sum(f => f.WorkoutMinutes);
 
-            WeeklyEatGoal = CalculateWeeklyCalorieGoal(CurrentUser, "eat");
+            WeeklyEatGoal = CalculateWeeklyEatGoal(CurrentUser);
+            WeeklyFeedback = GenerateFeedback(CurrentUser);
         }
 
-        private double CalculateWeeklyCalorieGoal(ApplicationUser user, string type)
+
+        private double CalculateWeeklyEatGoal(ApplicationUser user)
         {
-            if (user.Weight <= 0 || user.Height <= 0 || user.Age <= 0)
+            if (user == null || user.Weight <= 0 || user.Height <= 0 || user.Age <= 0)
                 return 0;
 
             // BMR (Mifflin-St Jeor Equation)
@@ -111,17 +139,40 @@ namespace FitraLife.Pages.Dashboard
 
             switch (user.GoalType)
             {
-                case "Lose":
-                    dailyGoal -= 500;
-                    break;
-                case "Gain":
-                    dailyGoal += 500;
-                    break;
+                case "Lose": dailyGoal -= 500; break;
+                case "Gain": dailyGoal += 500; break;
             }
 
-            if (type == "eat") return dailyGoal * 7;
-            // 'burn' calculation removed from the page model — the view computes burn goal inline when needed.
-            return 0;
+            return dailyGoal * 7; // weekly goal
+        }
+
+        private string GenerateFeedback(ApplicationUser user)
+        {
+            if (user == null) return string.Empty;
+
+            var stepPercent = StepGoal > 0 ? Math.Min(100, WeeklySteps / StepGoal * 100) : 0;
+            var workoutPercent = WorkoutMinutesGoal > 0 ? Math.Min(100, WeeklyWorkoutMinutes / WorkoutMinutesGoal * 100) : 0;
+
+            if (user.GoalType == "Gain")
+            {
+                if (stepPercent < 40 || workoutPercent < 40)
+                    return "Try adding a structured workout or more daily steps to support muscle gain.";
+                if (stepPercent < 80 || workoutPercent < 80)
+                    return "Good progress — keep consistent and increase protein intake.";
+                return "Nice — you’re consistent this week, keep it up!";
+            }
+            else if (user.GoalType == "Lose")
+            {
+                if (stepPercent < 40 || workoutPercent < 40)
+                    return "Add a couple short cardio sessions to boost calorie burn this week.";
+                if (stepPercent < 80 || workoutPercent < 80)
+                    return "On track — keep the momentum. Small increases to daily steps can help.";
+                return "Excellent — you’re making solid progress toward your burn goals.";
+            }
+
+            if (stepPercent < 60 || workoutPercent < 60)
+                return "Staying active is key — small daily steps add up. Try a short routine 3× weekly.";
+            return "Nice stability — you’re maintaining activity levels well.";
         }
     }
 }

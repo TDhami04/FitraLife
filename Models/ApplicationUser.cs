@@ -14,6 +14,8 @@ namespace FitraLife.Models
         public double BMI { get; set; }
         public string FitnessGoal { get; set; } = string.Empty;
         public string GoalType { get; set; } = "Maintain";
+        public int StepGoal { get; set; } = 70000;
+        public int WorkoutMinutesGoal { get; set; } = 100;
 
     }
 }
