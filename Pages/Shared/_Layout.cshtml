@@ -70,11 +70,66 @@
         </div>
     </footer>
 
+    <!-- Floating Chatbot Widget -->
+    <div id="chatWidget" class="chat-widget">
+
+        <button id="chatToggle" class="chat-toggle-btn" title="Chat with AI Assistant">
+            <span class="chat-icon">💬</span>
+            <span class="chat-close-icon">✕</span>
+        </button>
+
+        <div id="chatWindow" class="chat-window">
+            <div class="chat-header">
+                <div class="d-flex align-items-center">
+                    <span class="chat-bot-icon me-2">🤖</span>
+                    <div>
+                        <div class="fw-bold">FitraLife AI</div>
+                        <small class="text-white-50">Your fitness assistant</small>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="btn-icon" id="clearChatBtn" title="Clear chat">
+                        <i>🗑️</i>
+                    </button>
+                    <button class="btn-icon" id="minimizeChatBtn" title="Minimize">
+                        <i>−</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-body" id="chatBody">
+                <div class="chat-welcome text-center py-4">
+                    <div class="mb-3">🤖</div>
+                    <h6>Hello! I'm your AI fitness assistant</h6>
+                    <p class="small text-muted">Ask me anything about workouts, nutrition, or wellness!</p>
+                </div>
+            </div>
+
+            <div class="chat-quick-prompts" id="quickPrompts">
+                <button class="quick-prompt-btn" data-prompt="What exercises can I do to build muscle?">💪 Build Muscle</button>
+                <button class="quick-prompt-btn" data-prompt="Give me a healthy meal plan">🥗 Meal Plan</button>
+                <button class="quick-prompt-btn" data-prompt="How can I stay motivated?">⚡ Motivation</button>
+            </div>
+
+            <div class="chat-footer">
+                <div class="input-group">
+                    <input type="text" id="chatInput" class="form-control chat-input" placeholder="Type your message..." />
+                    <button class="btn btn-primary" id="sendMessageBtn" type="button">
+                        <span id="sendIcon">📤</span>
+                        <span id="sendSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
 
     <script>
         const toggle = document.getElementById('themeToggle');
