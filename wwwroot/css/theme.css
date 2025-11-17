@@ -324,6 +324,30 @@ body.dark-mode .ai-message .message-bubble {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
+body.dark-mode .ai-message .message-bubble .ai-bold {
+    color: #60a5fa;
+}
+
+body.dark-mode .ai-message .message-bubble .ai-italic {
+    color: #a78bfa;
+}
+
+body.dark-mode .ai-message .message-bubble .ai-header {
+    color: #34d399;
+    border-bottom-color: #10b981;
+}
+
+body.dark-mode .ai-message .message-bubble .ai-list-number,
+body.dark-mode .ai-message .message-bubble .ai-bullet {
+    color: #f87171;
+}
+
+body.dark-mode .ai-message .message-bubble .ai-code {
+    background-color: #374151;
+    color: #fca5a5;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 body.dark-mode .chat-footer,
 body.dark-mode .chat-quick-prompts {
     background-color: #161b22;

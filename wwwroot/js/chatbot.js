@@ -66,7 +66,7 @@ function renderChatHistory() {
             return `
                 <div class="chat-message ai-message">
                     <div class="message-avatar">🤖</div>
-                    <div class="message-bubble">${escapeHtml(msg.content)}</div>
+                    <div class="message-bubble">${formatAiMessage(msg.content)}</div>
                 </div>`;
         }
     }).join('');
@@ -158,6 +158,34 @@ clearBtn.addEventListener('click', async () => {
 // Helper functions
 function scrollToBottom() {
     chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function formatAiMessage(text) {
+    // Escape HTML first for security
+    let formatted = escapeHtml(text);
+
+    // Convert **bold** text
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="ai-bold">$1</strong>');
+
+    // Convert *italic* text
+    formatted = formatted.replace(/\*(.*?)\*/g, '<em class="ai-italic">$1</em>');
+
+    // Convert line breaks to <br> tags
+    formatted = formatted.replace(/\n/g, '<br>');
+
+    // Convert numbered lists (1. Item)
+    formatted = formatted.replace(/^(\d+)\.\s+(.+)$/gm, '<div class="ai-list-item"><span class="ai-list-number">$1.</span> $2</div>');
+
+    // Convert bullet points (- Item or • Item)
+    formatted = formatted.replace(/^[-•]\s+(.+)$/gm, '<div class="ai-list-item"><span class="ai-bullet">•</span> $2</div>');
+
+    // Convert headers (## Header)
+    formatted = formatted.replace(/^##\s+(.+)$/gm, '<div class="ai-header">$1</div>');
+
+    // Convert code blocks (`code`)
+    formatted = formatted.replace(/`([^`]+)`/g, '<code class="ai-code">$1</code>');
+
+    return formatted;
 }
 
 function escapeHtml(text) {

@@ -439,6 +439,57 @@ canvas {
   border-bottom-left-radius: 4px;
 }
 
+.ai-message .message-bubble .ai-bold {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.ai-message .message-bubble .ai-italic {
+  font-style: italic;
+  color: #7c3aed;
+}
+
+.ai-message .message-bubble .ai-header {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #059669;
+  margin: 8px 0 4px 0;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #10b981;
+}
+
+.ai-message .message-bubble .ai-list-item {
+  margin: 4px 0;
+  padding-left: 8px;
+  position: relative;
+}
+
+.ai-message .message-bubble .ai-list-number {
+  font-weight: 600;
+  color: #dc2626;
+  margin-right: 8px;
+}
+
+.ai-message .message-bubble .ai-bullet {
+  color: #dc2626;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.ai-message .message-bubble .ai-code {
+  background-color: #f3f4f6;
+  color: #dc2626;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #e5e7eb;
+}
+
+.ai-message .message-bubble br {
+  margin-bottom: 4px;
+}
+
 .chat-quick-prompts {
   display: flex;
   gap: 6px;
