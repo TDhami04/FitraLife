@@ -1,0 +1,109 @@
+@page
+@model FitraLife.Pages.MealGenerator.IndexModel
+@{
+    ViewData["Title"] = "AI Meal Plan Generator";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary"> AI Meal Plan Generator</h2>
+        <p class="text-muted">Get a personalized daily meal plan tailored to your diet and calorie goals.</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-auto" role="alert" style="max-width: 700px;">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form method="post" asp-page-handler="Generate" id="mealForm" class="card shadow-lg p-4 border-0 rounded-4 mx-auto" style="max-width: 700px;">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="DietType" class="form-label fw-semibold">Diet Type</label>
+                <select asp-for="DietType" class="form-select form-select-lg shadow-sm">
+                    <option>Standard</option>
+                    <option>Vegetarian</option>
+                    <option>Vegan</option>
+                    <option>Keto</option>
+                    <option>Paleo</option>
+                    <option>Pescatarian</option>
+                    <option>Gluten-Free</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Calories" class="form-label fw-semibold">Target Calories</label>
+                <input asp-for="Calories" type="number" class="form-control form-control-lg shadow-sm" placeholder="e.g. 2000" min="1000" max="5000" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Allergies" class="form-label fw-semibold">Allergies / Exclusions</label>
+                <input asp-for="Allergies" class="form-control form-control-lg shadow-sm" placeholder="e.g. Peanuts, Shellfish, Dairy (Optional)" />
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5 shadow" id="generateBtn">
+                 Generate Meal Plan
+            </button>
+        </div>
+
+        <div class="text-center mt-4 d-none" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2">Generating your plan... Please wait ⏳</p>
+        </div>
+    </form>
+
+    @if (Model.GeneratedMealPlan != null && Model.GeneratedMealPlan.Meals.Any())
+    {
+        <div class="card shadow-lg border-0 rounded-4 mt-5">
+            <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
+                <h4 class="mb-0 fw-bold">Your Daily Plan</h4>
+                <p class="mb-0 small opacity-75">
+                    Total Calories: @Model.GeneratedMealPlan.TotalCalories | 
+                    P: @Model.GeneratedMealPlan.Macros.Protein • 
+                    C: @Model.GeneratedMealPlan.Macros.Carbs • 
+                    F: @Model.GeneratedMealPlan.Macros.Fats
+                </p>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    @foreach (var meal in Model.GeneratedMealPlan.Meals)
+                    {
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm rounded-3 bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-primary rounded-pill">@meal.Type</span>
+                                        <small class="text-muted fw-bold">@meal.Calories kcal</small>
+                                    </div>
+                                    <h5 class="card-title fw-bold text-dark">@meal.Name</h5>
+                                    <p class="card-text text-muted small">@meal.Description</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <form method="post" asp-page-handler="Save" class="text-center mt-4">
+                    <input type="hidden" asp-for="MealPlanJson" />
+                    <button type="submit" class="btn btn-outline-primary btn-lg px-5 shadow-sm">
+                        💾 Save to My Logs
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('mealForm').addEventListener('submit', function() {
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').innerHTML = 'Generating...';
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+        });
+    </script>
+}

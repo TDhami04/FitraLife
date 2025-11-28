@@ -6,8 +6,8 @@
 
 <div class="container py-5">
     <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary">🤖 AI Workout Plan Generator</h2>
-        <p class="text-muted">Let Gemini AI craft a structured weekly plan tailored to your goals and experience.</p>
+        <h2 class="fw-bold text-primary">AI Workout Plan Generator</h2>
+        <p class="text-muted">Let AI craft a structured weekly plan tailored to your goals and experience.</p>
     </div>
 
     <form method="post" asp-page-handler="Generate" id="aiForm" class="card shadow-lg p-4 border-0 rounded-4 mx-auto" style="max-width: 700px;">
@@ -46,7 +46,7 @@
 
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary btn-lg px-5 shadow" id="generateBtn">
-                ⚡ Generate My AI Plan
+                 Generate My AI Plan
             </button>
         </div>
 
@@ -61,7 +61,7 @@
         <div class="card shadow-lg border-0 rounded-4 mt-4">
             <div class="card-body">
                 <h4 class="fw-bold text-center text-primary mb-4">
-                    🤖 @Model.PlanTitle
+                     @Model.PlanTitle
                 </h4>
 
                 <div class="accordion" id="aiWorkoutAccordion">

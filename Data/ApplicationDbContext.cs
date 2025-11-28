@@ -12,6 +12,7 @@ namespace FitraLife.Data
         }
 
         public DbSet<FitnessLog> FitnessLogs { get; set; }
+        public DbSet<MealLog> MealLogs { get; set; }
         public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
     }
