@@ -1,37 +1,67 @@
-@page
+@page "{id:int}"
 @model FitraLife.Pages.FitnessLogs.DetailsModel
 @{
     ViewData["Title"] = "Fitness Log Details";
 }
 
-<h2>Fitness Log Details</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-info text-white p-4 border-0 text-center position-relative overflow-hidden">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-10" style="transform: skewY(-5deg) scale(1.5);"></div>
+                    <h2 class="fw-bold mb-1 position-relative">Log Details</h2>
+                    <p class="mb-0 opacity-75 position-relative">@Model.Log?.Date.ToString("D")</p>
+                </div>
 
-@if (Model.Log != null)
-{
-    <div class="card p-4 shadow-sm">
-        <dl class="row">
-            <dt class="col-sm-3">Date</dt>
-            <dd class="col-sm-9">@Model.Log.Date.ToShortDateString()</dd>
+                <div class="card-body p-4 p-md-5">
+                    @if (Model.Log != null)
+                    {
+                        <div class="row g-4 mb-4">
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                    <span class="fs-2 d-block mb-2">👣</span>
+                                    <small class="text-muted text-uppercase fw-bold">Steps</small>
+                                    <h4 class="fw-bold text-primary mb-0">@($"{Model.Log.Steps:N0}")</h4>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                    <span class="fs-2 d-block mb-2">⏱️</span>
+                                    <small class="text-muted text-uppercase fw-bold">Workout</small>
+                                    <h4 class="fw-bold text-warning mb-0">@($"{Model.Log.WorkoutMinutes:N0}") min</h4>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                    <span class="fs-2 d-block mb-2">🔥</span>
+                                    <small class="text-muted text-uppercase fw-bold">Burned</small>
+                                    <h4 class="fw-bold text-success mb-0">@($"{Model.Log.CaloriesBurned:N0}")</h4>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center h-100">
+                                    <span class="fs-2 d-block mb-2">🥗</span>
+                                    <small class="text-muted text-uppercase fw-bold">Eaten</small>
+                                    <h4 class="fw-bold text-danger mb-0">@($"{Model.Log.CaloriesEaten:N0}")</h4>
+                                </div>
+                            </div>
+                        </div>
 
-            <dt class="col-sm-3">Steps</dt>
-            <dd class="col-sm-9">@Model.Log.Steps</dd>
-
-            <dt class="col-sm-3">Calories Burned</dt>
-            <dd class="col-sm-9">@Model.Log.CaloriesBurned</dd>
-
-            <dt class="col-sm-3">Calories Eaten</dt>
-            <dd class="col-sm-9">@Model.Log.CaloriesEaten</dd>
-
-            <dt class="col-sm-3">Workout Minutes</dt>
-            <dd class="col-sm-9">@Model.Log.WorkoutMinutes</dd>
-        </dl>
-        <div class="mt-3">
-            <a asp-page="/FitnessLogs/Edit" asp-route-id="@Model.Log.Id" class="btn btn-primary">Edit</a>
-            <a href="/Dashboard/Index" class="btn btn-secondary">Back</a>
+                        <div class="d-grid gap-2">
+                            <a asp-page="/FitnessLogs/Edit" asp-route-id="@Model.Log.Id" class="btn btn-primary btn-lg rounded-pill shadow-sm">Edit Log</a>
+                            <a asp-page="/Dashboard/Index" class="btn btn-light btn-lg rounded-pill text-muted">Back to Dashboard</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">Log not found.</div>
+                        <div class="text-center">
+                            <a asp-page="/Dashboard/Index" class="btn btn-secondary">Back to Dashboard</a>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-}
-else
-{
-    <div class="alert alert-warning">Log not found.</div>
-}
+</div>

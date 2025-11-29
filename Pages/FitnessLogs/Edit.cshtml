@@ -4,43 +4,82 @@
     ViewData["Title"] = "Edit Fitness Log";
 }
 
-<h2>Edit Fitness Log</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background-color: #1e293b;">
+                <div class="card-header bg-primary text-white p-4 border-0 text-center position-relative overflow-hidden">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-white" style="transform: skewY(-5deg) scale(1.5); opacity: 0.1;"></div>
+                    <h2 class="fw-bold mb-1 position-relative">Edit Log</h2>
+                    <p class="mb-0 opacity-75 position-relative">Update your activity record</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    @if (TempData["StatusMessage"] != null)
+                    {
+                        <div class="alert alert-success text-center rounded-3 shadow-sm mb-4">
+                            @TempData["StatusMessage"]
+                        </div>
+                    }
 
-@if (TempData["StatusMessage"] != null)
-{
-    <div class="alert alert-success text-center">
-        @TempData["StatusMessage"]
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.Id" />
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Date" class="form-label fw-semibold text-light small text-uppercase">Date</label>
+                            <input asp-for="Input.Date" class="form-control form-control-lg" type="date" />
+                            <span asp-validation-for="Input.Date" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label asp-for="Input.Steps" class="form-label fw-semibold text-light small text-uppercase">Steps</label>
+                                <div class="input-group">
+                                    <span class="input-group-text text-primary">👣</span>
+                                    <input asp-for="Input.Steps" class="form-control form-control-lg" placeholder="0" />
+                                </div>
+                                <span asp-validation-for="Input.Steps" class="text-danger small"></span>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Input.WorkoutMinutes" class="form-label fw-semibold text-light small text-uppercase">Workout Minutes</label>
+                                <div class="input-group">
+                                    <span class="input-group-text text-warning">⏱️</span>
+                                    <input asp-for="Input.WorkoutMinutes" class="form-control form-control-lg" placeholder="Min" />
+                                </div>
+                                <span asp-validation-for="Input.WorkoutMinutes" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label asp-for="Input.CaloriesBurned" class="form-label fw-semibold text-light small text-uppercase">Calories Burned</label>
+                                <div class="input-group">
+                                    <span class="input-group-text text-success">🔥</span>
+                                    <input asp-for="Input.CaloriesBurned" class="form-control form-control-lg" placeholder="Kcal" />
+                                </div>
+                                <span asp-validation-for="Input.CaloriesBurned" class="text-danger small"></span>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Input.CaloriesEaten" class="form-label fw-semibold text-light small text-uppercase">Calories Eaten</label>
+                                <div class="input-group">
+                                    <span class="input-group-text text-danger">🥗</span>
+                                    <input asp-for="Input.CaloriesEaten" class="form-control form-control-lg" placeholder="Kcal" />
+                                </div>
+                                <span asp-validation-for="Input.CaloriesEaten" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm fw-bold">Save Changes</button>
+                            <a asp-page="/Dashboard/Index" class="btn btn-light btn-lg rounded-pill text-muted">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
-<form method="post" class="card p-4 shadow-sm">
-    <input type="hidden" asp-for="Input.Id" />
-
-    <div class="mb-3">
-        <label asp-for="Input.Date" class="form-label"></label>
-        <input asp-for="Input.Date" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Input.Steps" class="form-label"></label>
-        <input asp-for="Input.Steps" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Input.CaloriesBurned" class="form-label"></label>
-        <input asp-for="Input.CaloriesBurned" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Input.CaloriesEaten" class="form-label"></label>
-        <input asp-for="Input.CaloriesEaten" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Input.WorkoutMinutes" class="form-label"></label>
-        <input asp-for="Input.WorkoutMinutes" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-success mt-2">Save Changes</button>
-    <a href="/Dashboard/Index" class="btn btn-secondary mt-2 ms-2">Cancel</a>
-</form>

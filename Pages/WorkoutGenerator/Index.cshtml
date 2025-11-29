@@ -58,33 +58,35 @@
 
     @if (Model.AiWorkoutPlan?.Any() == true)
     {
-        <div class="card shadow-lg border-0 rounded-4 mt-4">
-            <div class="card-body">
-                <h4 class="fw-bold text-center text-primary mb-4">
-                     @Model.PlanTitle
-                </h4>
-
+        <div class="card shadow-lg border-0 rounded-4 mt-5">
+            <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
+                <h4 class="mb-0 fw-bold">@Model.PlanTitle</h4>
+                <p class="mb-0 small opacity-75">Your personalized routine</p>
+            </div>
+            <div class="card-body p-4">
                 <div class="accordion" id="aiWorkoutAccordion">
                     @for (int i = 0; i < Model.AiWorkoutPlan.Count; i++)
                     {
                         var day = Model.AiWorkoutPlan[i];
                         var collapseId = $"collapse{i}";
                         var headingId = $"heading{i}";
-                        <div class="accordion-item border-0 mb-2 shadow-sm rounded-3">
+                        <div class="accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden">
                             <h2 class="accordion-header" id="@headingId">
-                                <button class="accordion-button collapsed fw-semibold" type="button" 
+                                <button class="accordion-button collapsed fw-semibold py-3" type="button" 
                                         data-bs-toggle="collapse" data-bs-target="#@collapseId" 
                                         aria-expanded="false" aria-controls="@collapseId">
-                                    🗓️ @day.Day
+                                    <span class="me-2">🗓️</span> @day.Day
                                 </button>
                             </h2>
                             <div id="@collapseId" class="accordion-collapse collapse" 
                                 aria-labelledby="@headingId" data-bs-parent="#aiWorkoutAccordion">
                                 <div class="accordion-body bg-light">
-                                    <ul class="list-group list-group-flush">
+                                    <ul class="list-group list-group-flush bg-transparent">
                                         @foreach (var ex in day.Exercises)
                                         {
-                                            <li class="list-group-item">@ex</li>
+                                            <li class="list-group-item bg-transparent border-bottom-0 ps-0">
+                                                <span class="me-2 text-primary">•</span> @ex
+                                            </li>
                                         }
                                     </ul>
                                 </div>

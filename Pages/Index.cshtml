@@ -1,10 +1,86 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid px-0 mb-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5 g-5">
+        <div class="col-lg-6 ps-lg-5 animate-fade-in">
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                🚀 AI-Powered Fitness
+            </span>
+            <h1 class="display-3 fw-bold mb-3 lh-sm">
+                Your Personal <br />
+                <span class="text-gradient">Fitness Evolution</span>
+            </h1>
+            <p class="lead text-muted mb-4" style="max-width: 500px;">
+                FitraLife uses advanced AI to generate custom workouts and meal plans tailored specifically to your goals.
+            </p>
+            <div class="d-flex gap-3">
+                <a asp-page="/Account/Register" class="btn btn-primary btn-lg px-4 py-3">
+                    Get Started Free
+                </a>
+                <a asp-page="/Account/Login" class="btn btn-outline-primary btn-lg px-4 py-3">
+                    Login
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                 alt="Fitness Hero" 
+                 class="img-fluid rounded-4 shadow-lg" 
+                 style="max-height: 500px; object-fit: cover; transform: rotate(-2deg);" />
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Everything you need to succeed</h2>
+        <p class="text-muted">One platform, endless possibilities.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 p-4 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-4 mb-3">🏋️‍♂️</div>
+                    <h4 class="card-title">AI Workouts</h4>
+                    <p class="card-text text-muted">
+                        Get structured weekly workout plans generated instantly based on your experience and available equipment.
+                    </p>
+                    <a asp-page="/WorkoutGenerator/Index" class="btn btn-link text-decoration-none fw-bold">Try Generator &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 p-4 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-4 mb-3">🥗</div>
+                    <h4 class="card-title">Smart Nutrition</h4>
+                    <p class="card-text text-muted">
+                        Receive personalized daily meal plans with macro breakdowns to fuel your body correctly.
+                    </p>
+                    <a asp-page="/MealGenerator/Index" class="btn btn-link text-decoration-none fw-bold">Plan Meals &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 p-4 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-4 mb-3">📊</div>
+                    <h4 class="card-title">Progress Tracking</h4>
+                    <p class="card-text text-muted">
+                        Log your daily activity, track calories, and visualize your progress with our intuitive dashboard.
+                    </p>
+                    <a asp-page="/Dashboard/Index" class="btn btn-link text-decoration-none fw-bold">View Dashboard &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
