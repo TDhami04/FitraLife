@@ -1,8 +1,11 @@
+using FitraLife.Data;
 using FitraLife.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FitraLife.Pages.Profile
@@ -10,15 +13,20 @@ namespace FitraLife.Pages.Profile
     public class IndexModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
         
         public bool HasProfileComplete { get; set; }
         public bool HasActiveGoal { get; set; }
         public bool HasBMIRecorded { get; set; }
         public int ProfileCompleteness { get; set; }
 
-        public IndexModel(UserManager<ApplicationUser> userManager)
+        public List<WorkoutPlan> SavedWorkouts { get; set; } = new();
+        public List<SavedMealPlan> SavedMeals { get; set; } = new();
+
+        public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
         [BindProperty]
@@ -34,6 +42,19 @@ namespace FitraLife.Pages.Profile
                 return RedirectToPage("/Account/Login");
 
             Input = user;
+
+            // Fetch Saved Plans
+            SavedWorkouts = await _context.WorkoutPlans
+                .Include(p => p.Exercises)
+                .Where(p => p.CreatedById == user.Id)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            SavedMeals = await _context.SavedMealPlans
+                .Include(p => p.Meals)
+                .Where(p => p.CreatedById == user.Id)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
 
             HasBMIRecorded = Input.BMI > 0;
             HasActiveGoal = (Input.StepGoal > 0) || (Input.WorkoutMinutesGoal > 0) || !string.IsNullOrEmpty(Input.FitnessGoal);
@@ -77,6 +98,36 @@ namespace FitraLife.Pages.Profile
                 ? "Profile updated successfully!"
                 : "Error updating profile.";
 
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeleteWorkoutAsync(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var plan = await _context.WorkoutPlans.FindAsync(id);
+            if (plan != null && plan.CreatedById == user.Id)
+            {
+                _context.WorkoutPlans.Remove(plan);
+                await _context.SaveChangesAsync();
+                StatusMessage = "Workout plan deleted.";
+            }
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeleteMealAsync(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var plan = await _context.SavedMealPlans.FindAsync(id);
+            if (plan != null && plan.CreatedById == user.Id)
+            {
+                _context.SavedMealPlans.Remove(plan);
+                await _context.SaveChangesAsync();
+                StatusMessage = "Meal plan deleted.";
+            }
             return RedirectToPage();
         }
     }

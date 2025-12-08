@@ -39,6 +39,9 @@ namespace FitraLife.Pages.MealGenerator
         [BindProperty]
         public string MealPlanJson { get; set; } = string.Empty;
 
+        [BindProperty]
+        public string GeneratedMealPlanJson { get; set; } = string.Empty;
+
         public MealPlan? GeneratedMealPlan { get; set; }
 
         public class MealPlan
@@ -69,32 +72,20 @@ namespace FitraLife.Pages.MealGenerator
 
             try
             {
-                // Strip markdown if Gemini wrapped the JSON
                 var cleanJson = aiResponse
                     .Replace("```json", "", StringComparison.OrdinalIgnoreCase)
                     .Replace("```", "")
                     .Trim();
 
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 GeneratedMealPlan = JsonSerializer.Deserialize<MealPlan>(cleanJson, options);
                 
-                // Serialize back to JSON to store in hidden field for saving
-                MealPlanJson = JsonSerializer.Serialize(GeneratedMealPlan);
+                // Serialize for hidden input
+                GeneratedMealPlanJson = JsonSerializer.Serialize(GeneratedMealPlan);
             }
             catch
             {
-                // Handle error or display raw response if needed
-                GeneratedMealPlan = new MealPlan
-                {
-                    Meals = new List<Meal>
-                    {
-                        new Meal { Name = "Error generating plan", Description = aiResponse }
-                    }
-                };
+                // Handle error or fallback
             }
 
             return Page();
@@ -102,59 +93,48 @@ namespace FitraLife.Pages.MealGenerator
 
         public async Task<IActionResult> OnPostSaveAsync()
         {
-            if (string.IsNullOrEmpty(MealPlanJson))
+            if (string.IsNullOrEmpty(GeneratedMealPlanJson))
             {
                 return RedirectToPage();
             }
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var plan = JsonSerializer.Deserialize<MealPlan>(MealPlanJson, options);
+            var planData = JsonSerializer.Deserialize<MealPlan>(GeneratedMealPlanJson, options);
+            
+            if (planData == null) return RedirectToPage();
 
-            if (plan != null && plan.Meals != null)
+            var savedPlan = new SavedMealPlan
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null) return RedirectToPage("/Account/Login");
+                Title = $"{DietType} Plan ({Calories} kcal)",
+                DietType = DietType,
+                TargetCalories = Calories,
+                TotalCalories = planData.TotalCalories,
+                Protein = planData.Macros.Protein,
+                Carbs = planData.Macros.Carbs,
+                Fats = planData.Macros.Fats,
+                CreatedById = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                Meals = new List<SavedMealItem>()
+            };
 
-                foreach (var meal in plan.Meals)
+            foreach (var meal in planData.Meals)
+            {
+                savedPlan.Meals.Add(new SavedMealItem
                 {
-                    var log = new MealLog
-                    {
-                        UserId = user.Id,
-                        Date = DateTime.Today,
-                        MealType = meal.Type,
-                        Name = meal.Name,
-                        Calories = meal.Calories,
-                        Description = meal.Description,
-                    };
-                    _context.MealLogs.Add(log);
-                }
-
-                // Update FitnessLog for today
-                var fitnessLog = await _context.FitnessLogs
-                    .FirstOrDefaultAsync(l => l.UserId == user.Id && l.Date == DateTime.Today);
-
-                if (fitnessLog == null)
-                {
-                    fitnessLog = new FitnessLog
-                    {
-                        UserId = user.Id,
-                        Date = DateTime.Today,
-                        CaloriesEaten = 0,
-                        CaloriesBurned = 0,
-                        Steps = 0,
-                        WorkoutMinutes = 0
-                    };
-                    _context.FitnessLogs.Add(fitnessLog);
-                }
-
-                // Add calories from the plan to the daily log
-                fitnessLog.CaloriesEaten += plan.TotalCalories;
-                
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Meal plan saved to your logs!";
+                    Type = meal.Type,
+                    Name = meal.Name,
+                    Calories = meal.Calories,
+                    Description = meal.Description
+                });
             }
 
-            return RedirectToPage();
+            _context.SavedMealPlans.Add(savedPlan);
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("/Profile/Index");
         }
     }
 }

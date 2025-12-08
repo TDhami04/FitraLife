@@ -59,14 +59,24 @@
     @if (Model.GeneratedMealPlan != null && Model.GeneratedMealPlan.Meals.Any())
     {
         <div class="card shadow-lg border-0 rounded-4 mt-5">
-            <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
-                <h4 class="mb-0 fw-bold">Your Daily Plan</h4>
-                <p class="mb-0 small opacity-75">
-                    Total Calories: @Model.GeneratedMealPlan.TotalCalories | 
-                    P: @Model.GeneratedMealPlan.Macros.Protein • 
-                    C: @Model.GeneratedMealPlan.Macros.Carbs • 
-                    F: @Model.GeneratedMealPlan.Macros.Fats
-                </p>
+            <div class="card-header bg-success text-white py-3 rounded-top-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0 fw-bold">Your Daily Plan</h4>
+                    <p class="mb-0 small opacity-75">
+                        Total Calories: @Model.GeneratedMealPlan.TotalCalories | 
+                        P: @Model.GeneratedMealPlan.Macros.Protein • 
+                        C: @Model.GeneratedMealPlan.Macros.Carbs • 
+                        F: @Model.GeneratedMealPlan.Macros.Fats
+                    </p>
+                </div>
+                <form method="post" asp-page-handler="Save">
+                    <input type="hidden" asp-for="GeneratedMealPlanJson" />
+                    <input type="hidden" asp-for="DietType" />
+                    <input type="hidden" asp-for="Calories" />
+                    <button type="submit" class="btn btn-light text-success fw-bold shadow-sm rounded-pill px-4">
+                        💾 Save Plan
+                    </button>
+                </form>
             </div>
             <div class="card-body p-4">
                 <div class="row g-4">
@@ -76,7 +86,7 @@
                             <div class="card h-100 border-0 shadow-sm rounded-3 bg-light">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-primary rounded-pill">@meal.Type</span>
+                                        <span class="badge bg-success rounded-pill">@meal.Type</span>
                                         <small class="text-muted fw-bold">@meal.Calories kcal</small>
                                     </div>
                                     <h5 class="card-title fw-bold text-dark">@meal.Name</h5>
@@ -86,13 +96,6 @@
                         </div>
                     }
                 </div>
-
-                <form method="post" asp-page-handler="Save" class="text-center mt-4">
-                    <input type="hidden" asp-for="MealPlanJson" />
-                    <button type="submit" class="btn btn-outline-primary btn-lg px-5 shadow-sm">
-                        💾 Save to My Logs
-                    </button>
-                </form>
             </div>
         </div>
     }
