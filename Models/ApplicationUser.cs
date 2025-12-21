@@ -11,6 +11,7 @@ namespace FitraLife.Models
         public string ActivityLevel { get; set; } = "Moderate";
         public double Height { get; set; }   // in cm 
         public double Weight { get; set; }   // in kg
+        public double TargetWeight { get; set; } // in kg
         public double BMI { get; set; }
         public string FitnessGoal { get; set; } = string.Empty;
         public string GoalType { get; set; } = "Maintain";

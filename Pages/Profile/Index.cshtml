@@ -142,6 +142,11 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="form-label fw-semibold text-muted small text-uppercase">Target Weight (kg)</label>
+                            <input asp-for="Input.TargetWeight" class="form-control form-control-lg" type="number" step="0.1" placeholder="e.g. 70" />
+                        </div>
+
+                        <div class="mb-4">
                             <label class="form-label fw-semibold text-muted small text-uppercase">Specific Target</label>
                             <textarea asp-for="Input.FitnessGoal" class="form-control rounded-3" rows="3" placeholder="What do you want to achieve?"></textarea>
                         </div>

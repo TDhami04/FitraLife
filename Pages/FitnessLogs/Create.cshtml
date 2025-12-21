@@ -50,7 +50,12 @@
 
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label asp-for="Input.CaloriesBurned" class="form-label fw-semibold text-light small text-uppercase">Calories Burned</label>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label asp-for="Input.CaloriesBurned" class="form-label fw-semibold text-light small text-uppercase">Calories Burned</label>
+                                    <button type="button" class="btn btn-link p-0 text-white opacity-50" style="font-size: 0.85rem;" data-bs-toggle="modal" data-bs-target="#caloriesInfoModal">
+                                        <i class="bi bi-info-circle-fill"></i>
+                                    </button>
+                                </div>
                                 <div class="input-group">
                                     <span class="input-group-text text-success">🔥</span>
                                     <input asp-for="Input.CaloriesBurned" class="form-control form-control-lg" placeholder="Kcal" />
@@ -73,6 +78,37 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calories Info Modal -->
+<div class="modal fade" id="caloriesInfoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary">Logging Calories Burned</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-dark">To get the most accurate predictions, please log your <strong>Active Energy</strong> only.</p>
+                
+                <div class="alert alert-light border rounded-3 mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-success me-2">Do Log</span>
+                        <span class="text-muted small">Calories burned during workouts, walking, or sports.</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-secondary me-2">Don't Log</span>
+                        <span class="text-muted small">Your BMR (Base Metabolic Rate). We calculate this automatically!</span>
+                    </div>
+                </div>
+
+                <p class="small text-muted mb-0">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <strong>Tip:</strong> Most smartwatches show "Active Calories" and "Total Calories". Use the "Active" number here.
+                </p>
             </div>
         </div>
     </div>

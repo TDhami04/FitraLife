@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FitraLife.Data;
+using FitraLife.Services;
 
 namespace FitraLife.Pages.Dashboard
 {
@@ -15,10 +16,12 @@ namespace FitraLife.Pages.Dashboard
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IAnalyticsService _analyticsService;
 
         public ApplicationUser? CurrentUser { get; set; }
         public FitnessLog? LatestLog { get; set; }
         public List<FitnessLog> FitnessLogs { get; set; } = new();
+        public WeightPredictionResult? Prediction { get; set; }
 
         public double AverageSteps { get; set; }
         public double AverageCaloriesBurned { get; set; }
@@ -34,13 +37,16 @@ namespace FitraLife.Pages.Dashboard
         public int StepGoal { get; set; }
         public int WorkoutMinutesGoal { get; set; }
         public double WeeklyEatGoal { get; set; }
+        public double EstimatedBMR { get; set; }
+        public double EstimatedTDEE { get; set; }
 
         public string WeeklyFeedback { get; set; } = string.Empty;
 
-        public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IAnalyticsService analyticsService)
         {
             _userManager = userManager;
             _context = context;
+            _analyticsService = analyticsService;
         }
 
         public async Task OnGetAsync()
@@ -57,6 +63,12 @@ namespace FitraLife.Pages.Dashboard
                 .OrderByDescending(f => f.Date)
                 .Take(30)
                 .ToList();
+
+            // Calculate BMR/TDEE first so we can pass BMR to the prediction engine
+            CalculateEnergyExpenditure(CurrentUser);
+
+            // Generate Prediction (Now passing BMR)
+            Prediction = _analyticsService.PredictGoalDate(FitnessLogs, CurrentUser.Weight, CurrentUser.TargetWeight, EstimatedBMR);
 
             // Get logs specifically for today (using local date)
             var today = DateTime.Now.Date;
@@ -113,14 +125,12 @@ namespace FitraLife.Pages.Dashboard
             WeeklyFeedback = GenerateFeedback(CurrentUser);
         }
 
-
-        private double CalculateWeeklyEatGoal(ApplicationUser user)
+        private void CalculateEnergyExpenditure(ApplicationUser user)
         {
-            if (user == null || user.Weight <= 0 || user.Height <= 0 || user.Age <= 0)
-                return 0;
+            if (user == null || user.Weight <= 0 || user.Height <= 0 || user.Age <= 0) return;
 
             // BMR (Mifflin-St Jeor Equation)
-            double bmr = user.Gender == "Male"
+            EstimatedBMR = user.Gender == "Male"
                 ? 10 * user.Weight + 6.25 * user.Height - 5 * user.Age + 5
                 : 10 * user.Weight + 6.25 * user.Height - 5 * user.Age - 161;
 
@@ -134,8 +144,14 @@ namespace FitraLife.Pages.Dashboard
                 _ => 1.55
             };
 
-            double maintenance = bmr * activity;
-            double dailyGoal = maintenance;
+            EstimatedTDEE = EstimatedBMR * activity;
+        }
+
+        private double CalculateWeeklyEatGoal(ApplicationUser user)
+        {
+            if (EstimatedTDEE <= 0) return 0;
+
+            double dailyGoal = EstimatedTDEE;
 
             switch (user.GoalType)
             {

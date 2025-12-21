@@ -91,6 +91,7 @@ namespace FitraLife.Pages.Profile
             user.BMI = Math.Round(user.Weight / Math.Pow(user.Height / 100, 2), 1);
             user.StepGoal = Input.StepGoal;
             user.WorkoutMinutesGoal = Input.WorkoutMinutesGoal;
+            user.TargetWeight = Input.TargetWeight;
 
             var result = await _userManager.UpdateAsync(user);
 
