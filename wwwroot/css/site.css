@@ -659,3 +659,37 @@ canvas {
 .border {
     border-color: var(--border-color) !important;
 }
+
+.chat-history-view {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 70px;
+    background-color: var(--bg-card);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-history-view.d-none {
+    display: none !important;
+}
+
+.history-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px;
+    color: var(--text-dark);
+}
+
+.history-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.history-item.active {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+

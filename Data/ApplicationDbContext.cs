@@ -17,5 +17,7 @@ namespace FitraLife.Data
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<SavedMealPlan> SavedMealPlans { get; set; }
         public DbSet<SavedMealItem> SavedMealItems { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
     }
 }

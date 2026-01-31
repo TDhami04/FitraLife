@@ -99,12 +99,25 @@
                     </div>
                 </div>
                 <div class="chat-header-actions position-relative">
+                    <button class="btn-icon" id="historyBtn" title="Chat History">
+                        <i>🕒</i>
+                    </button>
                     <button class="btn-icon" id="clearChatBtn" title="Clear chat">
                         <i>🗑️</i>
                     </button>
                     <button class="btn-icon" id="minimizeChatBtn" title="Minimize">
                         <i>−</i>
                     </button>
+                </div>
+            </div>
+
+            <div id="chatHistoryView" class="chat-history-view d-none">
+                <div class="d-flex justify-content-between align-items-center p-2 border-bottom bg-light">
+                    <h6 class="m-0 text-dark">Chat History</h6>
+                    <button id="newChatBtn" class="btn btn-sm btn-primary">+ New Chat</button>
+                </div>
+                <div id="historyList" class="list-group list-group-flush overflow-auto" style="height: calc(100% - 50px);">
+                    <!-- History items will go here -->
                 </div>
             </div>
 

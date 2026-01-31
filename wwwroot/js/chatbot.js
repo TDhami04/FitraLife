@@ -8,9 +8,15 @@ const clearBtn = document.getElementById('clearChatBtn');
 const minimizeBtn = document.getElementById('minimizeChatBtn');
 const sendIcon = document.getElementById('sendIcon');
 const sendSpinner = document.getElementById('sendSpinner');
+const historyBtn = document.getElementById('historyBtn');
+const chatHistoryView = document.getElementById('chatHistoryView');
+const historyList = document.getElementById('historyList');
+const newChatBtn = document.getElementById('newChatBtn');
 
 let isOpen = false;
-let chatHistory = [];
+let currentSessionId = null;
+let chatMessages = [];
+let sessions = [];
 
 // Toggle chat window
 chatToggle.addEventListener('click', () => {
@@ -19,7 +25,10 @@ chatToggle.addEventListener('click', () => {
     chatWindow.classList.toggle('show', isOpen);
 
     if (isOpen) {
-        loadChatHistory();
+        if (!currentSessionId) {
+            // Try to load last session or show new chat
+            loadSessions();
+        }
         chatInput.focus();
     }
 });
@@ -31,22 +40,102 @@ minimizeBtn.addEventListener('click', () => {
     chatWindow.classList.remove('show');
 });
 
-// Load chat history
-async function loadChatHistory() {
+// Toggle History View
+if (historyBtn) {
+    historyBtn.addEventListener('click', () => {
+        chatHistoryView.classList.toggle('d-none');
+        if (!chatHistoryView.classList.contains('d-none')) {
+            loadSessions();
+        }
+    });
+}
+
+// New Chat
+if (newChatBtn) {
+    newChatBtn.addEventListener('click', () => {
+        currentSessionId = null;
+        chatMessages = [];
+        renderChatMessages();
+        chatHistoryView.classList.add('d-none');
+        // Deselect all in list
+        document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+    });
+}
+
+// Load Sessions
+async function loadSessions() {
     try {
-        const response = await fetch('/api/Chat/history');
+        const response = await fetch('/api/Chat/sessions');
         if (response.ok) {
-            chatHistory = await response.json();
-            renderChatHistory();
+            sessions = await response.json();
+            renderSessions();
         }
     } catch (error) {
-        console.error('Failed to load chat history:', error);
+        console.error('Failed to load sessions:', error);
+    }
+}
+
+// Render Sessions List
+function renderSessions() {
+    if (!historyList) return;
+    
+    if (sessions.length === 0) {
+        historyList.innerHTML = '<div class="text-center p-3 text-muted">No chat history</div>';
+        return;
+    }
+
+    historyList.innerHTML = sessions.map(session => `
+        <div class="history-item ${session.id === currentSessionId ? 'active' : ''}" onclick="loadSession(${session.id})">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-truncate fw-bold" style="max-width: 180px;">${escapeHtml(session.title)}</div>
+                <button class="btn btn-sm btn-link text-danger p-0" onclick="deleteSession(event, ${session.id})">×</button>
+            </div>
+            <small class="text-muted">${new Date(session.createdAt).toLocaleDateString()}</small>
+        </div>
+    `).join('');
+}
+
+// Load Specific Session
+async function loadSession(id) {
+    currentSessionId = id;
+    if (chatHistoryView) chatHistoryView.classList.add('d-none');
+    
+    try {
+        const response = await fetch(`/api/Chat/session/${id}`);
+        if (response.ok) {
+            chatMessages = await response.json();
+            renderChatMessages();
+            // Update active state in list
+            renderSessions();
+        }
+    } catch (error) {
+        console.error('Failed to load session:', error);
+    }
+}
+
+// Delete Session
+async function deleteSession(event, id) {
+    event.stopPropagation();
+    if (!confirm('Delete this chat?')) return;
+
+    try {
+        const response = await fetch(`/api/Chat/session/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            if (currentSessionId === id) {
+                currentSessionId = null;
+                chatMessages = [];
+                renderChatMessages();
+            }
+            loadSessions();
+        }
+    } catch (error) {
+        console.error('Failed to delete session:', error);
     }
 }
 
 // Render chat messages
-function renderChatHistory() {
-    if (chatHistory.length === 0) {
+function renderChatMessages() {
+    if (chatMessages.length === 0) {
         chatBody.innerHTML = `
             <div class="chat-welcome text-center py-4">
                 <div class="mb-3">🤖</div>
@@ -56,7 +145,7 @@ function renderChatHistory() {
         return;
     }
 
-    chatBody.innerHTML = chatHistory.map(msg => {
+    chatBody.innerHTML = chatMessages.map(msg => {
         if (msg.role === 'user') {
             return `
                 <div class="chat-message user-message">
@@ -85,9 +174,9 @@ async function sendMessage() {
     sendIcon.classList.add('d-none');
     sendSpinner.classList.remove('d-none');
 
-    // Add user message to UI
-    chatHistory.push({ role: 'user', content: message, timestamp: new Date() });
-    renderChatHistory();
+    // Add user message to UI immediately
+    chatMessages.push({ role: 'user', content: message, timestamp: new Date() });
+    renderChatMessages();
     chatInput.value = '';
 
     try {
@@ -96,24 +185,32 @@ async function sendMessage() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ 
+                message: message,
+                sessionId: currentSessionId 
+            })
         });
 
         if (response.ok) {
             const data = await response.json();
-            chatHistory.push({ role: 'assistant', content: data.response, timestamp: data.timestamp });
-            renderChatHistory();
+            currentSessionId = data.sessionId; // Update session ID if new
+            chatMessages.push({ role: 'assistant', content: data.response, timestamp: new Date() });
+            renderChatMessages();
+            // Refresh list if it was a new session
+            if (sessions.length === 0 || sessions[0].id !== currentSessionId) {
+                loadSessions();
+            }
         } else {
             throw new Error('Failed to send message');
         }
     } catch (error) {
         console.error('Error sending message:', error);
-        chatHistory.push({
+        chatMessages.push({
             role: 'assistant',
             content: '⚠️ Sorry, I encountered an error. Please try again.',
             timestamp: new Date()
         });
-        renderChatHistory();
+        renderChatMessages();
     } finally {
         // Re-enable input
         chatInput.disabled = false;
@@ -142,16 +239,15 @@ document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
     });
 });
 
-// Clear chat
+// Clear chat (Current Session)
 clearBtn.addEventListener('click', async () => {
-    if (confirm('Clear chat history?')) {
-        try {
-            await fetch('/api/Chat/clear', { method: 'POST' });
-            chatHistory = [];
-            renderChatHistory();
-        } catch (error) {
-            console.error('Failed to clear chat:', error);
+    if (currentSessionId) {
+        if (confirm('Delete this chat session?')) {
+            await deleteSession({ stopPropagation: () => {} }, currentSessionId);
         }
+    } else {
+        chatMessages = [];
+        renderChatMessages();
     }
 });
 
@@ -161,6 +257,7 @@ function scrollToBottom() {
 }
 
 function formatAiMessage(text) {
+    if (!text) return '';
     // Escape HTML first for security
     let formatted = escapeHtml(text);
 
@@ -189,6 +286,7 @@ function formatAiMessage(text) {
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

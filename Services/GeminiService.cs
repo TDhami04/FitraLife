@@ -60,7 +60,7 @@ namespace FitraLife.Services
             var requestJson = JsonSerializer.Serialize(requestBody);
 
             var request = new HttpRequestMessage(HttpMethod.Post,
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent")
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
             {
                 Content = new StringContent(requestJson, Encoding.UTF8, "application/json")
             };
@@ -137,7 +137,7 @@ namespace FitraLife.Services
             var requestJson = JsonSerializer.Serialize(requestBody);
 
             var request = new HttpRequestMessage(HttpMethod.Post,
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent")
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
             {
                 Content = new StringContent(requestJson, Encoding.UTF8, "application/json")
             };
@@ -204,7 +204,7 @@ namespace FitraLife.Services
             var requestJson = JsonSerializer.Serialize(requestBody);
 
             var request = new HttpRequestMessage(HttpMethod.Post,
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent")
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
             {
                 Content = new StringContent(requestJson, Encoding.UTF8, "application/json")
             };
@@ -216,7 +216,7 @@ namespace FitraLife.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                return $"⚠️ Sorry, I'm having trouble connecting right now. Please try again later.";
+                return $"⚠️ Gemini API error ({response.StatusCode}): {responseString}";
             }
 
             try
