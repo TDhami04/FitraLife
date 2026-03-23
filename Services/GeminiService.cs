@@ -13,9 +13,14 @@ namespace FitraLife.Services
         private readonly string _apiKey;
 
         public GeminiService(IConfiguration config)
+            : this(config, new HttpClient())
         {
-            _apiKey = config["Gemini:ApiKey"] ?? throw new ArgumentNullException("Gemini:ApiKey not found in configuration.");
-            _httpClient = new HttpClient();
+        }
+
+        public GeminiService(IConfiguration config, HttpClient httpClient)
+        {
+            _apiKey = config["Gemini:ApiKey"] ?? throw new ArgumentNullException("Gemini:ApiKey not found. Configure it with User Secrets or environment variables.");
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
         public async Task<string> GenerateWorkoutPlanAsync(string userGoal, string experienceLevel, string availableDays)

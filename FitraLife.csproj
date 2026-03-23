@@ -4,9 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>fitralife-local-secrets</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FitraLife.Tests\\**\\*.cs" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
